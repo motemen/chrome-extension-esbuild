@@ -1,0 +1,18 @@
+{
+  "name": "chrome-extension-bundle-scripts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Hironao OTSUBO <motemen@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "esbuild-wasm": "^0.14.23"
+  },
+  "devDependencies": {
+    "@motemen/chrome-extension-scripts": "https://github.com/motemen/chrome-extension-scripts",
+    "@types/chrome": "^0.0.178",
+    "esbuild": "^0.14.23",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.5"
+  }
+}
