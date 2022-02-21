@@ -4,11 +4,12 @@
   "name": "chrome-extension-bundle-scripts",
   "version": "1.0.0",
   "devtools_page": "html/devtools.html",
-  "permissions": ["devtools.panels"],
+  "permissions": ["devtools.panels", "devtools.inspectedWindow"],
   "content_security_policy": {
     "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-eval'; worker-src blob:"
   },
   "sandbox": {
     "pages": ["html/sandbox.html"]
-  }
+  },
+  "host_permissions": ["*://*/*"]
 }
