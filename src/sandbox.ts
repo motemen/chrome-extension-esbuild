@@ -1,6 +1,7 @@
 import * as esbuild from "esbuild-wasm";
 import type { Interface as ParentInterface } from "./popup";
 import * as Comlink from "comlink";
+import { guessLoader } from "./lib/utils";
 
 const parentRemote = Comlink.wrap<ParentInterface>(
   Comlink.windowEndpoint(window.parent)
@@ -10,44 +11,21 @@ export type Interface = typeof API;
 
 let initialized = false;
 
-function guessLoader({
-  location,
-  contentType,
-}: {
-  location: string;
-  contentType: string;
-}): esbuild.Loader | null {
-  const ct = contentType.replace(/\s+;.*$/, "");
-  switch (ct) {
-    case "application/javascript":
-      return "js";
-
-    case "text/css":
-      return "css";
-
-    default: {
-      const m = /\.(jsx?|tsx?|[cm]js|[cm]ts|css|html|json)(?:$|\?)/.exec(
-        location
-      );
-      if (m) {
-        const loader =
-          { cjs: "js", mjs: "js", cts: "ts", mts: "ts" }[m[1]] ?? m[1];
-        return loader as esbuild.Loader;
-      }
-
-      return null;
-    }
-  }
+export interface BuildOptions {
+  minify: boolean;
+  sourcemap: "inline" | false;
 }
 
 async function build({
   source,
   location,
   contentType,
+  options,
 }: {
   source: string;
   location: string;
   contentType: string;
+  options: BuildOptions;
 }): Promise<esbuild.BuildResult> {
   console.log("sandbox: build", { source, location, contentType });
 
@@ -61,48 +39,39 @@ async function build({
 
   // https://esbuild.github.io/plugins/#http-plugin
   const httpLoaderPlugin: esbuild.Plugin = {
-    name: "http-loader",
+    name: "http",
     setup(build) {
       build.onResolve({ filter: /./ }, (args) => {
-        console.debug("esbuild onResolve", args);
-
         return {
           path: new URL(args.path, location).toString(),
-          namespace: "external",
+          namespace: "http-loader",
         };
       });
 
-      build.onLoad({ filter: /./, namespace: "external" }, async (args) => {
-        try {
-          console.log("onLoad");
+      build.onLoad(
+        { filter: /./, namespace: "http-loader" },
+        async ({ path }) => {
           const { contents, contentType } = await parentRemote.fetchResource(
-            args.path
+            path
           );
-          const loader = guessLoader({ location: args.path, contentType });
-          console.log("onLoad fetch");
           return {
             contents,
-            ...(loader && { loader }),
+            loader: guessLoader({ location: path, contentType }) ?? "default",
           };
-        } catch (err) {
-          console.error("build.onLoad", err);
         }
-      });
+      );
     },
   };
-
-  const loader = guessLoader({ location, contentType });
 
   const result = await esbuild.build({
     bundle: true,
     stdin: {
       contents: source,
-      ...(loader && { loader }),
+      sourcefile: location,
+      loader: guessLoader({ location, contentType }) ?? "default",
     },
     plugins: [httpLoaderPlugin],
-    // TODO: loader:
-    // TODO: minify:
-    // TODO: sourcemap:
+    ...options,
   });
 
   return result;

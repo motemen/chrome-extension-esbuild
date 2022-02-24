@@ -9,12 +9,19 @@
     "watch": "chrome-extension-scripts build --watch"
   },
   "dependencies": {
+    "@emotion/react": "^11.8.1",
+    "@emotion/styled": "^11.8.1",
+    "@mui/material": "^5.4.3",
     "comlink": "^4.3.1",
-    "esbuild-wasm": "^0.14.23"
+    "esbuild-wasm": "^0.14.23",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "swr": "^1.2.2"
   },
   "devDependencies": {
     "@motemen/chrome-extension-scripts": "https://github.com/motemen/chrome-extension-scripts",
     "@types/chrome": "^0.0.178",
+    "@types/react-dom": "^17.0.11",
     "esbuild": "^0.14.23",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.5"

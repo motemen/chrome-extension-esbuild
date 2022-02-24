@@ -1,7 +1,7 @@
 {
   "$scheme": "https://json.schemastore.org/chrome-manifest",
   "manifest_version": 3,
-  "name": "chrome-extension-esbuild",
+  "name": "esbuild",
   "version": "1.0.0",
   "permissions": ["scripting"],
   "content_security_policy": {
