@@ -6,6 +6,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "postinstall": "cp node_modules/esbuild-wasm/esbuild.wasm src/assets/",
+    "build": "chrome-extension-scripts build",
     "watch": "chrome-extension-scripts build --watch"
   },
   "dependencies": {
