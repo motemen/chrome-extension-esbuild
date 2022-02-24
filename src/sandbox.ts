@@ -1,5 +1,5 @@
 import * as esbuild from "esbuild-wasm";
-import type { Interface as ParentInterface } from "./panel";
+import type { Interface as ParentInterface } from "./popup";
 import * as Comlink from "comlink";
 
 const parentRemote = Comlink.wrap<ParentInterface>(
@@ -25,7 +25,7 @@ function guessLoader({
     case "text/css":
       return "css";
 
-    default:
+    default: {
       const m = /\.(jsx?|tsx?|[cm]js|[cm]ts|css|html|json)(?:$|\?)/.exec(
         location
       );
@@ -36,6 +36,7 @@ function guessLoader({
       }
 
       return null;
+    }
   }
 }
 
@@ -58,8 +59,6 @@ async function build({
     });
   }
 
-  const loader = guessLoader({ location, contentType });
-
   // https://esbuild.github.io/plugins/#http-plugin
   const httpLoaderPlugin: esbuild.Plugin = {
     name: "http-loader",
@@ -79,17 +78,20 @@ async function build({
           const { contents, contentType } = await parentRemote.fetchResource(
             args.path
           );
+          const loader = guessLoader({ location: args.path, contentType });
           console.log("onLoad fetch");
           return {
             contents,
             ...(loader && { loader }),
           };
         } catch (err) {
-          console.error(err);
+          console.error("build.onLoad", err);
         }
       });
     },
   };
+
+  const loader = guessLoader({ location, contentType });
 
   const result = await esbuild.build({
     bundle: true,

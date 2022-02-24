@@ -3,8 +3,7 @@
   "manifest_version": 3,
   "name": "chrome-extension-esbuild",
   "version": "1.0.0",
-  "devtools_page": "html/devtools.html",
-  "permissions": ["devtools.panels", "devtools.inspectedWindow", "scripting"],
+  "permissions": ["scripting"],
   "content_security_policy": {
     "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-eval'; worker-src blob:"
   },

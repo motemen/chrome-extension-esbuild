@@ -25,7 +25,7 @@ const fetchResource = async (url: string) => {
 };
 
 const run = async () => {
-  const [tab] = await chrome.tabs.query({ active: true });
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   try {
     const { source, location, contentType } = await new Promise(
@@ -64,7 +64,19 @@ const run = async () => {
       contentType,
     });
     console.log({ result });
-    console.log(result.outputFiles![0].text);
+
+    alert(result.outputFiles![0].path);
+    const url = `data:text/css;base64,${btoa(result.outputFiles![0].text)}`;
+    chrome.tabs.create({ url });
+
+    /*
+    const blob = new Blob([result.outputFiles![0].text], {
+      type: "text/javascript",
+    });
+    const url = URL.createObjectURL(blob);
+    console.log({ url });
+    chrome.tabs.create({ url });
+    */
   } catch (err) {
     console.error(err);
   }
