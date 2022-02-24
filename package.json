@@ -21,7 +21,7 @@
     "swr": "^1.2.2"
   },
   "devDependencies": {
-    "@motemen/chrome-extension-scripts": "https://github.com/motemen/chrome-extension-scripts",
+    "@motemen/chrome-extension-scripts": "^1.0.0-alpha",
     "@types/chrome": "^0.0.178",
     "@types/react-dom": "^17.0.11",
     "esbuild": "^0.14.23",

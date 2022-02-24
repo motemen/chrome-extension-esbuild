@@ -181,9 +181,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@motemen/chrome-extension-scripts@https://github.com/motemen/chrome-extension-scripts":
+"@motemen/chrome-extension-scripts@^1.0.0-alpha":
   version "1.0.0-alpha"
-  resolved "https://github.com/motemen/chrome-extension-scripts#66e8c86e18613a7f3c2ad48b14f46f642db9da7b"
+  resolved "https://registry.yarnpkg.com/@motemen/chrome-extension-scripts/-/chrome-extension-scripts-1.0.0-alpha.tgz#36a386818fa42689219691c7a2a76010fa4ecd10"
+  integrity sha512-mi1BYQs0BZJkc4Y/hmHGePR5+6dv/hyQx9oKf2dDEJ8xmxjB82d/P7eXwxUFLzTWfq2KMhL75tRgoErWa1Abng==
   dependencies:
     "@typescript-eslint/eslint-plugin" "4.26.0"
     "@typescript-eslint/parser" "4.26.0"
