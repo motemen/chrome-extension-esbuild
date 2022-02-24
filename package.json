@@ -1,11 +1,15 @@
 {
-  "name": "chrome-extension-bundle-scripts",
+  "name": "chrome-extension-esbuild",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Hironao OTSUBO <motemen@gmail.com>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "watch": "chrome-extension-scripts build --watch"
+  },
   "dependencies": {
+    "comlink": "^4.3.1",
     "esbuild-wasm": "^0.14.23"
   },
   "devDependencies": {

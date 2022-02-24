@@ -1,15 +1,19 @@
 {
   "$scheme": "https://json.schemastore.org/chrome-manifest",
   "manifest_version": 3,
-  "name": "chrome-extension-bundle-scripts",
+  "name": "chrome-extension-esbuild",
   "version": "1.0.0",
   "devtools_page": "html/devtools.html",
-  "permissions": ["devtools.panels", "devtools.inspectedWindow"],
+  "permissions": ["devtools.panels", "devtools.inspectedWindow", "scripting"],
   "content_security_policy": {
     "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-eval'; worker-src blob:"
   },
   "sandbox": {
     "pages": ["html/sandbox.html"]
   },
-  "host_permissions": ["*://*/*"]
+  "host_permissions": ["*://*/*"],
+  "action": {
+    "default_popup": "html/popup.html",
+    "default_title": "esbuild"
+  }
 }

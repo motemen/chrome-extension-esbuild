@@ -1,89 +1,115 @@
 import * as esbuild from "esbuild-wasm";
-import type { FetchRequest, PanelRequest } from "./panel";
+import type { Interface as ParentInterface } from "./panel";
+import * as Comlink from "comlink";
 
-export type MessagePayload = BuildRequestPayload | FetchResult;
+const parentRemote = Comlink.wrap<ParentInterface>(
+  Comlink.windowEndpoint(window.parent)
+);
 
-export interface FetchResult {
-  type: "fetchResult";
-  id: string;
-  contents: string;
+export type Interface = typeof API;
+
+let initialized = false;
+
+function guessLoader({
+  location,
+  contentType,
+}: {
+  location: string;
   contentType: string;
+}): esbuild.Loader | null {
+  const ct = contentType.replace(/\s+;.*$/, "");
+  switch (ct) {
+    case "application/javascript":
+      return "js";
+
+    case "text/css":
+      return "css";
+
+    default:
+      const m = /\.(jsx?|tsx?|[cm]js|[cm]ts|css|html|json)(?:$|\?)/.exec(
+        location
+      );
+      if (m) {
+        const loader =
+          { cjs: "js", mjs: "js", cts: "ts", mts: "ts" }[m[1]] ?? m[1];
+        return loader as esbuild.Loader;
+      }
+
+      return null;
+  }
 }
 
-export interface BuildRequestPayload {
-  type: "buildRequest";
+async function build({
+  source,
+  location,
+  contentType,
+}: {
   source: string;
   location: string;
   contentType: string;
-}
+}): Promise<esbuild.BuildResult> {
+  console.log("sandbox: build", { source, location, contentType });
 
-const createID = () => Math.random().toString(36);
+  if (!initialized) {
+    initialized = true;
 
-const ResultSlots: Record<string, (result: FetchResult) => void> = {};
+    await esbuild.initialize({
+      wasmURL: "../assets/esbuild.wasm",
+    });
+  }
 
-async function build(
-  _post: (r: PanelRequest) => void,
-  { source, location, contentType }: BuildRequestPayload
-) {
-  console.log({ source, location, contentType });
+  const loader = guessLoader({ location, contentType });
 
-  await esbuild.initialize({
-    wasmURL: "../assets/esbuild.wasm",
-  });
   // https://esbuild.github.io/plugins/#http-plugin
   const httpLoaderPlugin: esbuild.Plugin = {
     name: "http-loader",
     setup(build) {
       build.onResolve({ filter: /./ }, (args) => {
-        console.log(args);
+        console.debug("esbuild onResolve", args);
 
         return {
           path: new URL(args.path, location).toString(),
-          namespace: "http-url",
+          namespace: "external",
         };
       });
 
-      build.onLoad({ filter: /./, namespace: "http-url" }, async (args) => {
-        const id = createID();
-        const p = new Promise<FetchResult>((resolve) => {
-          ResultSlots[id] = resolve;
-        });
-        _post({
-          id,
-          type: "fetch",
-          url: args.path,
-        } as FetchRequest);
-        const result = await p;
-        console.log({ result });
-        return {
-          contents: result.contents,
-        };
+      build.onLoad({ filter: /./, namespace: "external" }, async (args) => {
+        try {
+          console.log("onLoad");
+          const { contents, contentType } = await parentRemote.fetchResource(
+            args.path
+          );
+          console.log("onLoad fetch");
+          return {
+            contents,
+            ...(loader && { loader }),
+          };
+        } catch (err) {
+          console.error(err);
+        }
       });
     },
   };
+
   const result = await esbuild.build({
     bundle: true,
     stdin: {
       contents: source,
+      ...(loader && { loader }),
     },
     plugins: [httpLoaderPlugin],
     // TODO: loader:
+    // TODO: minify:
+    // TODO: sourcemap:
   });
-  console.log({ result });
-  (document.querySelector("#result") as HTMLTextAreaElement).value =
-    JSON.stringify({
-      result,
-    });
+
+  return result;
 }
 
-addEventListener("message", async (ev) => {
-  if (ev.data.type === "buildRequest") {
-    await build((data: PanelRequest) => {
-      ev.source!.postMessage(data, { targetOrigin: ev.origin });
-    }, ev.data);
-  } else if (ev.data.type === "fetchResult") {
-    ResultSlots[ev.data.id](ev.data);
-  } else {
-    console.error("unknown payload", ev.data);
-  }
+addEventListener("message", (ev) => {
+  console.debug("[sandbox] onmessage", ev);
 });
+
+const API = { build };
+
+Comlink.expose(API, Comlink.windowEndpoint(window.parent));

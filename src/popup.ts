@@ -25,19 +25,25 @@ const fetchResource = async (url: string) => {
 };
 
 const run = async () => {
+  const [tab] = await chrome.tabs.query({ active: true });
+
   try {
     const { source, location, contentType } = await new Promise(
       (resolve, reject) => {
-        chrome.devtools.inspectedWindow.eval(
-          `({
-						source: document.documentElement.textContent,
-						location: location.href.toString(),
-						contentType: document.contentType
-					})`,
-          {},
-          (result, exceptionInfo) => {
-            if (exceptionInfo) {
-              reject(exceptionInfo);
+        chrome.scripting.executeScript(
+          {
+            target: {
+              tabId: tab.id!,
+            },
+            func: () => ({
+              source: document.documentElement.textContent,
+              location: location.href.toString(),
+              contentType: document.contentType,
+            }),
+          },
+          ([{ result }]) => {
+            if (!result) {
+              reject(new Error("execution failed"));
             } else {
               resolve(
                 result as {
@@ -58,6 +64,7 @@ const run = async () => {
       contentType,
     });
     console.log({ result });
+    console.log(result.outputFiles![0].text);
   } catch (err) {
     console.error(err);
   }
@@ -67,8 +74,8 @@ document.querySelector("#run")?.addEventListener("click", run);
 
 const API = { fetchResource };
 
-Comlink.expose(fetchResource, Comlink.windowEndpoint(sandbox));
+Comlink.expose(API, Comlink.windowEndpoint(sandbox));
 
 addEventListener("message", (ev) => {
-  console.debug("panel: onmessage", ev);
+  console.debug("[panel] onmessage", ev);
 });
