@@ -128,10 +128,15 @@ export const Main = ({ sandboxRemote, tabId }: Props) => {
                   sourcemap: inlineSourcemap && "inline",
                 });
                 setResultURL(u);
-              } catch (err) {
-                // appendLog(`${err}`);
+              } catch (err: any) {
+                console.error(err);
+                logContentScript(
+                  tabId,
+                  "error",
+                  `${err}${"stack" in err ? "\n" + err.stack : ""}`
+                );
               } finally {
-                logContentScript(tabId, "info", "finished");
+                logContentScript(tabId, "info", "build finished");
                 setRunning(false);
               }
             }}

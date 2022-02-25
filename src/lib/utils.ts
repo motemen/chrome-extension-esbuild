@@ -27,7 +27,7 @@ export interface LogMessage {
   message: string;
 }
 
-function isLogMessage(obj: any): obj is LogMessage {
+export function isLogMessage(obj: any): obj is LogMessage {
   return obj.type === "log" && "level" in obj && "message" in obj;
 }
 
@@ -36,14 +36,5 @@ export function logContentScript(
   level: "error" | "info" | "debug",
   message: string
 ) {
-  chrome.tabs.sendMessage(tabId, <LogMessage>{ type: "log", level, message });
-}
-
-export function handleLogRequest(request: any): boolean {
-  if (isLogMessage(request)) {
-    console[request.level](`[esbuild] ${request.message}`);
-    return true;
-  }
-
-  return false;
+  chrome.tabs?.sendMessage(tabId, <LogMessage>{ type: "log", level, message });
 }
