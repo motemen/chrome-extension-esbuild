@@ -84,7 +84,6 @@ async function build({
             resolveDir: "/_/" + encodeURIComponent(location),
             contents,
             loader: guessLoader({ location: path, contentType }) ?? "default",
-            // TODO resolveDir?
           };
         }
       );
