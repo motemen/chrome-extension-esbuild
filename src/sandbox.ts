@@ -1,13 +1,11 @@
 import * as esbuild from "esbuild-wasm";
-import type { Interface as ParentInterface } from "./popup";
+import type { API as ParentInterface } from "./lib/api";
 import * as Comlink from "comlink";
 import { guessLoader } from "./lib/utils";
 
-const parentRemote = Comlink.wrap<ParentInterface>(
+const parentRemote = Comlink.wrap<typeof ParentInterface>(
   Comlink.windowEndpoint(window.parent)
 );
-
-export type Interface = typeof API;
 
 let initialized = false;
 
@@ -91,6 +89,6 @@ addEventListener("message", (ev) => {
   console.debug("[sandbox] onmessage", ev);
 });
 
-const API = { build };
+export const API = { build };
 
 Comlink.expose(API, Comlink.windowEndpoint(window.parent));

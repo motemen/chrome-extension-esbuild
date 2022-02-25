@@ -20,3 +20,30 @@ export function guessLoader({
       return null;
   }
 }
+
+export interface LogMessage {
+  type: "log";
+  level: "error" | "info" | "debug";
+  message: string;
+}
+
+function isLogMessage(obj: any): obj is LogMessage {
+  return obj.type === "log" && "level" in obj && "message" in obj;
+}
+
+export function logContentScript(
+  tabId: number,
+  level: "error" | "info" | "debug",
+  message: string
+) {
+  chrome.tabs.sendMessage(tabId, <LogMessage>{ type: "log", level, message });
+}
+
+export function handleLogRequest(request: any): boolean {
+  if (isLogMessage(request)) {
+    console[request.level](`[esbuild] ${request.message}`);
+    return true;
+  }
+
+  return false;
+}

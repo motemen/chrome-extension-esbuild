@@ -11,8 +11,12 @@
     "pages": ["html/sandbox.html"]
   },
   "host_permissions": ["*://*/*"],
-  "action": {
-    "default_popup": "html/popup.html",
-    "default_title": "esbuild"
-  }
+  "devtools_page": "html/devtools.html",
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["content_script.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }
