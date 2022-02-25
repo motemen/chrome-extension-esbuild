@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": "esbuild",
+  "description": "Run esbuild on devtools.",
   "version": "1.0.0",
   "permissions": ["scripting"],
   "content_security_policy": {
