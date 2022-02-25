@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import type { API as SandboxInterface, BuildOptions } from "../sandbox";
 import * as Comlink from "comlink";
 import * as React from "react";
@@ -13,28 +14,18 @@ interface DocumentInfo {
 }
 
 const getDocumentInfo = async (tabId: number): Promise<DocumentInfo> => {
-  return new Promise((resolve, reject) => {
-    // XXX: use selection text?
-    chrome.scripting.executeScript(
-      {
-        target: {
-          tabId,
-        },
-        func: () => ({
-          source: document.documentElement.textContent,
-          location: location.href,
-          contentType: document.contentType,
-        }),
-      },
-      ([{ result }]) => {
-        if (!result) {
-          reject(new Error("executeScript failed"));
-        } else {
-          resolve(result as DocumentInfo);
-        }
-      }
-    );
+  // XXX: use selection text?
+  const [{ result }] = await browser.scripting.executeScript({
+    target: {
+      tabId,
+    },
+    func: () => ({
+      source: document.documentElement.textContent,
+      location: location.href,
+      contentType: document.contentType,
+    }),
   });
+  return result as DocumentInfo;
 };
 
 const runBuild = async (
@@ -114,7 +105,7 @@ export const Main = ({ sandboxRemote, tabId }: Props) => {
 
   const handleOpenResult = (url: string) => {
     console.log(url);
-    chrome.tabs.create({ url });
+    browser.tabs.create({ url });
   };
 
   if (!docInfo && !error) {

@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import { Main } from "./lib/ui";
 import { initialize } from "./lib/api";
 import * as React from "react";
@@ -6,7 +7,7 @@ import useSWR from "swr";
 
 const Wrapper = () => {
   const { data: tab } = useSWR("tab", async () => {
-    const [tab] = await chrome.tabs.query({
+    const [tab] = await browser.tabs.query({
       active: true,
       currentWindow: true,
     });

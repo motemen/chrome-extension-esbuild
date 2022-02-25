@@ -1,25 +1,4 @@
-import * as esbuild from "esbuild-wasm";
-
-export function guessLoader({
-  location,
-  contentType,
-}: {
-  location: string;
-  contentType: string;
-}): esbuild.Loader | null {
-  const ct = contentType.replace(/\s*;.*$/, "");
-  switch (ct) {
-    case "application/javascript":
-    case "text/javascript":
-      return "js";
-
-    case "text/css":
-      return "css";
-
-    default:
-      return null;
-  }
-}
+import browser from "webextension-polyfill";
 
 export interface LogMessage {
   type: "log";
@@ -36,5 +15,5 @@ export function logContentScript(
   level: "error" | "info" | "debug",
   message: string
 ) {
-  chrome.tabs?.sendMessage(tabId, <LogMessage>{ type: "log", level, message });
+  browser.tabs?.sendMessage(tabId, <LogMessage>{ type: "log", level, message });
 }

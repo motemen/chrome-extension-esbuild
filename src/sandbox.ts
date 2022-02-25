@@ -1,7 +1,27 @@
 import * as esbuild from "esbuild-wasm";
 import type { API as ParentInterface } from "./lib/api";
 import * as Comlink from "comlink";
-import { guessLoader } from "./lib/utils";
+
+function guessLoader({
+  location,
+  contentType,
+}: {
+  location: string;
+  contentType: string;
+}): esbuild.Loader | null {
+  const ct = contentType.replace(/\s*;.*$/, "");
+  switch (ct) {
+    case "application/javascript":
+    case "text/javascript":
+      return "js";
+
+    case "text/css":
+      return "css";
+
+    default:
+      return null;
+  }
+}
 
 const parentRemote = Comlink.wrap<ParentInterface>(
   Comlink.windowEndpoint(window.parent)
