@@ -7,7 +7,7 @@ export function guessLoader({
   location: string;
   contentType: string;
 }): esbuild.Loader | null {
-  const ct = contentType.replace(/\s+;.*$/, "");
+  const ct = contentType.replace(/\s*;.*$/, "");
   switch (ct) {
     case "application/javascript":
     case "text/javascript":

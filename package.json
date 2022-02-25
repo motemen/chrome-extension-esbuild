@@ -16,6 +16,7 @@
     "@mui/material": "^5.4.3",
     "comlink": "^4.3.1",
     "esbuild-wasm": "^0.14.23",
+    "js-base64": "^3.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "swr": "^1.2.2"
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@motemen/chrome-extension-scripts": "^1.0.0-alpha",
     "@types/chrome": "^0.0.178",
+    "@types/js-base64": "^3.3.1",
     "@types/react-dom": "^17.0.11",
     "esbuild": "^0.14.23",
     "ts-loader": "^9.2.6",

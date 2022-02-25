@@ -42,8 +42,16 @@ async function build({
     name: "http",
     setup(build) {
       build.onResolve({ filter: /./ }, (args) => {
+        console.debug("[esbuild] onResolve", args);
+
+        let base = args.importer;
+        const m = /\/_\/(.+)/.exec(args.resolveDir);
+        if (m) {
+          base = decodeURIComponent(m[1]);
+        }
+
         return {
-          path: new URL(args.path, location).toString(),
+          path: new URL(args.path, base).toString(),
           namespace: "http-loader",
         };
       });
@@ -51,12 +59,14 @@ async function build({
       build.onLoad(
         { filter: /./, namespace: "http-loader" },
         async ({ path }) => {
-          const { contents, contentType } = await parentRemote.fetchResource(
-            path
-          );
+          const { location, contents, contentType } =
+            await parentRemote.fetchResource(path);
+
           return {
+            resolveDir: "/_/" + encodeURIComponent(location),
             contents,
             loader: guessLoader({ location: path, contentType }) ?? "default",
+            // TODO resolveDir?
           };
         }
       );

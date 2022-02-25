@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import useSWR from "swr";
+import { Base64 } from "js-base64";
 
 export type Interface = typeof API;
 
@@ -31,6 +32,7 @@ const fetchResource = async (url: string) => {
 
   const contents = await resp.text();
   return {
+    location: resp.url,
     contents,
     contentType: resp.headers.get("Content-Type") ?? "",
   };
@@ -85,7 +87,9 @@ const runBuild = async (
     throw new Error("esbuild emitted no result");
   }
 
-  const url = `data:${contentType};base64,${btoa(result.outputFiles![0].text)}`;
+  const url = `data:${contentType};base64,${Base64.fromUint8Array(
+    result.outputFiles![0].contents
+  )}`;
   chrome.tabs.create({ url, active: false });
 
   return result;
@@ -186,7 +190,7 @@ const Popup = () => {
             Build
           </Button>
         </div>
-        <div style={{ overflow: "scroll", width: "100%" }}>
+        <div style={{ overflow: "auto", width: "100%" }}>
           <pre>{logs.join("\n")}</pre>
         </div>
       </div>
