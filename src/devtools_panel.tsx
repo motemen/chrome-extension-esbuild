@@ -3,14 +3,14 @@ import { initialize } from "./lib/api";
 import * as React from "react";
 import { render } from "react-dom";
 
+const tabId = chrome.devtools.inspectedWindow.tabId;
+
 const { sandboxRemote } = initialize(
-  document.querySelector<HTMLIFrameElement>("#sandbox")!.contentWindow!
+  document.querySelector<HTMLIFrameElement>("#sandbox")!.contentWindow!,
+  tabId
 );
 
 render(
-  <Main
-    tabId={chrome.devtools.inspectedWindow.tabId}
-    sandboxRemote={sandboxRemote}
-  />,
+  <Main tabId={tabId} sandboxRemote={sandboxRemote} />,
   document.querySelector("#container")
 );

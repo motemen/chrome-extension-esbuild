@@ -4,10 +4,6 @@ import * as React from "react";
 import { render } from "react-dom";
 import useSWR from "swr";
 
-const { sandboxRemote } = initialize(
-  document.querySelector<HTMLIFrameElement>("#sandbox")!.contentWindow!
-);
-
 const Wrapper = () => {
   const { data: tab } = useSWR("tab", async () => {
     const [tab] = await chrome.tabs.query({
@@ -18,6 +14,11 @@ const Wrapper = () => {
   });
 
   if (tab && tab.id) {
+    const { sandboxRemote } = initialize(
+      document.querySelector<HTMLIFrameElement>("#sandbox")!.contentWindow!,
+      tab.id
+    );
+
     return (
       <div style={{ width: 200 }}>
         <Main tabId={tab.id} sandboxRemote={sandboxRemote} />

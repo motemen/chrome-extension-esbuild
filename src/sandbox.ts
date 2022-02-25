@@ -3,7 +3,7 @@ import type { API as ParentInterface } from "./lib/api";
 import * as Comlink from "comlink";
 import { guessLoader } from "./lib/utils";
 
-const parentRemote = Comlink.wrap<typeof ParentInterface>(
+const parentRemote = Comlink.wrap<ParentInterface>(
   Comlink.windowEndpoint(window.parent)
 );
 

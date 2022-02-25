@@ -91,6 +91,32 @@ export const Main = ({ sandboxRemote, tabId }: Props) => {
   const [running, setRunning] = useState(false);
   const [resultURL, setResultURL] = useState<string | null>(null);
 
+  const handleRun = async (docInfo: DocumentInfo) => {
+    try {
+      setRunning(true);
+      const u = await runBuild(sandboxRemote, docInfo, {
+        minify,
+        sourcemap: inlineSourcemap && "inline",
+      });
+      setResultURL(u);
+    } catch (err: any) {
+      console.error(err);
+      logContentScript(
+        tabId,
+        "error",
+        `${err}${"stack" in err ? "\n" + err.stack : ""}`
+      );
+    } finally {
+      logContentScript(tabId, "info", "build finished");
+      setRunning(false);
+    }
+  };
+
+  const handleOpenResult = (url: string) => {
+    console.log(url);
+    chrome.tabs.create({ url });
+  };
+
   if (!docInfo && !error) {
     return <></>;
   }
@@ -118,35 +144,19 @@ export const Main = ({ sandboxRemote, tabId }: Props) => {
           Sourcemap
         </label>
         <div style={{ marginTop: 16 }}>
-          <button
-            disabled={running}
-            onClick={async () => {
-              try {
-                setRunning(true);
-                const u = await runBuild(sandboxRemote, docInfo, {
-                  minify,
-                  sourcemap: inlineSourcemap && "inline",
-                });
-                setResultURL(u);
-              } catch (err: any) {
-                console.error(err);
-                logContentScript(
-                  tabId,
-                  "error",
-                  `${err}${"stack" in err ? "\n" + err.stack : ""}`
-                );
-              } finally {
-                logContentScript(tabId, "info", "build finished");
-                setRunning(false);
-              }
-            }}
-          >
+          <button disabled={running} onClick={() => handleRun(docInfo)}>
             Build
           </button>
         </div>
         <p>
           {resultURL && (
-            <a target="_blank" href={resultURL}>
+            <a
+              href={resultURL}
+              onClick={(ev) => {
+                ev.preventDefault();
+                handleOpenResult(resultURL);
+              }}
+            >
               Open Result
             </a>
           )}

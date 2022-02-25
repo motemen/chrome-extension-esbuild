@@ -14,7 +14,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["esbuild_content_script.js"],
+      "js": ["esbuild_log.js"],
       "run_at": "document_idle"
     }
   ]
